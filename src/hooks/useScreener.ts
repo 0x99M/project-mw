@@ -2,8 +2,6 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-const SYMBOLS = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'XRP', 'DOGE', 'DOT'];
-
 interface TickerData {
   ticker: string;
   '4h': string;
@@ -25,6 +23,17 @@ interface BybitKlineResponse {
   retExtInfo: object;
   time: number;
 };
+
+async function fetchTickers(): Promise<Ticker[]> {
+  const response = await fetch('/api/tickers');
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch tickers: ${response.statusText}`);
+  }
+
+  const data: Ticker[] = await response.json();
+  return data;
+}
 
 function calculatePriceChange(currentPrice: number, previousPrice: number): string {
   const change = ((currentPrice - previousPrice) / previousPrice) * 100;
@@ -100,11 +109,12 @@ function processKlineData(symbol: string, klineData: string[][]): TickerData {
 
 async function fetchScreenerData(): Promise<TickerData[]> {
   try {
-    const promises = SYMBOLS.map(symbol => fetchSymbolKlines(symbol));
+    const tickers = await fetchTickers();
+    const promises = tickers.map(ticker => fetchSymbolKlines(ticker.symbol));
     const responses = await Promise.all(promises);
 
     const tickerData: TickerData[] = responses.map((response, index) => {
-      const symbol = SYMBOLS[index];
+      const symbol = tickers[index].symbol;
 
       if (response.retCode !== 0) {
         return {

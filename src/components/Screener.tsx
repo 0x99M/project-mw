@@ -4,9 +4,9 @@ import { useScreener } from '@/hooks/useScreener';
 
 export default function Screener() {
   const { data, isLoading, error, isError, refetch, isFetching } = useScreener();
-  
+
   const columns = ['4h', '8h', '12h', '16h', '20h', '24h'];
-  
+
   // Helper function to format percentage and get color class
   const formatPercentage = (value: string) => {
     const numValue = parseFloat(value);
