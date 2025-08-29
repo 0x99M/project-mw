@@ -22,7 +22,7 @@ interface BybitKlineResponse {
     category: string;
     list: string[][];
   };
-  retExtInfo: {};
+  retExtInfo: object;
   time: number;
 };
 

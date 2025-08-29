@@ -93,7 +93,7 @@ export default function Screener() {
             </tr>
           </thead>
           <tbody>
-            {data?.map((row, rowIndex) => (
+            {data?.map((row) => (
               <tr key={row.ticker} className="border-b border-gray-800 hover:bg-gray-900/30">
                 <td className="sticky left-0 z-10 bg-background px-4 py-3 font-medium text-white border-r border-gray-800">
                   {row.ticker}
