@@ -1,7 +1,29 @@
-const BYBIT_KLINE_API = 'https://api.bybit.com/v5/market/kline';
+const BYBIT_BASE_API = 'https://api.bybit.com/v5/market';
+
+const BYBIT_KLINE_API = `${BYBIT_BASE_API}/kline`;
+const BYBIT_TICKERS_API = `${BYBIT_BASE_API}/tickers`;
+
+function calculatePriceChange(currentPrice: number, previousPrice: number): string {
+  if (isNaN(currentPrice) || isNaN(previousPrice) || previousPrice === 0) return '0.00';
+
+  const change = ((currentPrice - previousPrice) / previousPrice) * 100;
+  return change.toFixed(2);
+}
+
+function processKlineData(symbol: string, klineData: string[][]): ScreenerTickerData {
+  return {
+    symbol,
+    candlesChangePercentages: klineData.map(candle => {
+      if (!candle || candle.length < 5) return '0.00';
+      const close = parseFloat(candle[4]);
+      const open = parseFloat(candle[1]);
+      return calculatePriceChange(close, open);
+    })
+  };
+}
 
 export const bybitService = {
-  getCandles: async (symbol: string): Promise<BybitKlineResponse> => {
+  getCandles: async (symbol: string): Promise<ScreenerTickerData> => {
     const query = `category=spot&symbol=${symbol}USDT&interval=240&limit=10`;
     const response = await fetch(`${BYBIT_KLINE_API}?${query}`);
 
@@ -9,6 +31,36 @@ export const bybitService = {
       throw new Error(`Failed to fetch ${symbol} candles from Bybit - ${response.statusText}`);
     }
 
-    return response.json();
+    const data: BybitKlineResponse = await response.json();
+
+    if (data.retCode !== 0) {
+      return {
+        symbol,
+        candlesChangePercentages: [],
+      };
+    }
+
+    return processKlineData(symbol, data.result.list);
+  },
+
+  getTickers: async (): Promise<Ticker[]> => {
+    const query = `category=spot`;
+    const response = await fetch(`${BYBIT_TICKERS_API}?${query}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch tickers from Bybit - ${response.statusText}`);
+    }
+
+    const data: BybitTickersResponse = await response.json();
+
+    if (data.retCode !== 0) {
+      throw new Error(`Failed to fetch tickers from Bybit - ${response.statusText}`);
+    }
+
+    return data.result.list
+      .filter(ticker => ticker.symbol.endsWith('USDT'))
+      .map(ticker => ({
+        symbol: ticker.symbol.replace(/USDT$/, ''),
+      }));
   },
 }
