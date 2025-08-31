@@ -7,6 +7,7 @@ import { useBybit } from '@/hooks/useBybit';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChevronsUpDown } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { signout } from '@/utils/auth';
 
 export default function SettingsPage() {
   const [open, setOpen] = useState(false);
@@ -31,8 +32,8 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="w-full flex flex-col justify-center items-center">
-      <div className="h-18" />
+    <div className="w-full flex flex-col justify-center items-center gap-8">
+      <div className="h-12" />
       <div className="flex flex-col justify-center items-center text-center gap-4">
         <h1 className="text-2xl">Tickers</h1>
         {isLoadingTickers || isLoadingBybit ? (
@@ -97,6 +98,9 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
+      <Button onClick={() => signout()} className="w-32" variant={'outline'}>
+        Signout
+      </Button>
     </div>
   );
 }
