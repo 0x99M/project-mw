@@ -32,23 +32,25 @@ export default function Screener() {
   }
 
   return (
-    <div className="space-y-4 m-4">
-      <div className="grid grid-flow-col auto-cols-[120px] gap-4 w-max">
-        {data?.tickersData.map(ticker => (
-          <div key={ticker.symbol} className="flex flex-col justify-center items-center gap-6 text-center">
-            <h3 className="px-4 py-3 font-bold text-white">
-              {ticker.symbol}
-            </h3>
-            {ticker.candlesChangePercentages.map((candleChange, i) => {
-              const { value, colorClass } = formatPercentage(candleChange);
-              return (
-                <div key={i + '.' + ticker.symbol + '.' + value} className={`px-4 py-3 font-medium ${colorClass}`} >
-                  {value}
-                </div>
-              );
-            })}
-          </div>
-        ))}
+    <div className="m-4">
+      <div className="overflow-x-auto">
+        <div className="grid grid-flow-col auto-cols-[120px] gap-4">
+          {data?.tickersData.map(ticker => (
+            <div key={ticker.symbol} className="flex flex-col justify-center items-center gap-6 text-center">
+              <h3 className="px-4 py-3 font-bold text-white">
+                {ticker.symbol}
+              </h3>
+              {ticker.candlesChangePercentages.map((candleChange, i) => {
+                const { value, colorClass } = formatPercentage(candleChange);
+                return (
+                  <div key={i + '.' + ticker.symbol + '.' + value} className={`px-4 py-3 font-medium ${colorClass}`} >
+                    {value}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
