@@ -1,0 +1,3 @@
+interface ScreenerData {
+    tickersData: ScreenerTickerData[];
+}
