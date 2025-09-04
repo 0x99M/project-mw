@@ -2,15 +2,13 @@
 
 import React, { useEffect, useRef } from 'react';
 import { createChart, IChartApi, ISeriesApi, ColorType, CandlestickSeries, UTCTimestamp } from 'lightweight-charts';
-import { useBybitCandles } from '@/hooks/useBybit';
-import { createBybitGetCandlesRequest } from '@/types/BybitGetCandlesRequest';
 
 interface TradingViewChartProps {
   symbol: string;
+  candles: Candle[];
 }
 
-export default function TradingViewChart({ symbol }: TradingViewChartProps) {
-  const { data, isLoading, error } = useBybitCandles(createBybitGetCandlesRequest({ symbol, limit: 200 }));
+export default function TradingViewChart({ symbol, candles }: TradingViewChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
@@ -94,8 +92,8 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
   }, []);
 
   useEffect(() => {
-    if (candleSeriesRef.current && data) {
-      candleSeriesRef.current.setData(data.map((c) => ({
+    if (candleSeriesRef.current && candles) {
+      candleSeriesRef.current.setData(candles.map((c) => ({
         time: c.time as UTCTimestamp,
         open: c.open,
         high: c.high,
@@ -103,7 +101,7 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
         close: c.close,
       })))
     }
-  }, [data]);
+  }, [candles]);
 
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center">
