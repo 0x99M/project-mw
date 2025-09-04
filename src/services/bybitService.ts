@@ -1,3 +1,5 @@
+import { BybitGetCandlesRequest } from "@/types/BybitGetCandlesRequest";
+
 const BYBIT_BASE_API = 'https://api.bybit.com/v5/market';
 
 const BYBIT_KLINE_API = `${BYBIT_BASE_API}/kline`;
@@ -23,8 +25,33 @@ function processKlineData(symbol: string, klineData: string[][]): ScreenerTicker
 }
 
 export const bybitService = {
-  getCandles: async (symbol: string): Promise<ScreenerTickerData> => {
-    const query = `category=spot&symbol=${symbol}USDT&interval=240&limit=10`;
+  getCandlesV2: async (request: BybitGetCandlesRequest): Promise<Candle[]> => {
+    const symbol = request.symbol;
+    const query = `category=spot&symbol=${symbol}USDT&interval=${request.interval}&limit=${request.limit}`;
+    const response = await fetch(`${BYBIT_KLINE_API}?${query}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${symbol} candles from Bybit - ${response.statusText}`);
+    }
+
+    const data: BybitKlineResponse = await response.json();
+
+    if (data.retCode !== 0) {
+      return [];
+    }
+
+    return data.result.list.map(([time, open, high, low, close]: string[]) => ({
+      time: parseInt(time) / 1000,
+      open: parseFloat(open),
+      high: parseFloat(high),
+      low: parseFloat(low),
+      close: parseFloat(close),
+    })).reverse();
+  },
+
+  getCandles: async (request: BybitGetCandlesRequest): Promise<ScreenerTickerData> => {
+    const symbol = request.symbol;
+    const query = `category=spot&symbol=${symbol}USDT&interval=${request.interval}&limit=${request.limit}`;
     const response = await fetch(`${BYBIT_KLINE_API}?${query}`);
 
     if (!response.ok) {

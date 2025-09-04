@@ -1,7 +1,19 @@
 'use client';
 
-import { bybitService } from "@/services/bybitService";
-import { useQuery } from "@tanstack/react-query";
+import { bybitService } from '@/services/bybitService';
+import { BybitGetCandlesRequest } from '@/types/BybitGetCandlesRequest';
+import { useQuery } from '@tanstack/react-query';
+
+export function useBybitCandles(request: BybitGetCandlesRequest) {
+  return useQuery({
+    queryKey: ['bybitCandles', request.symbol, request.interval, request.limit],
+    queryFn: () => bybitService.getCandlesV2(request),
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    retry: 3,
+  });
+}
 
 export function useBybit() {
   return useQuery({
